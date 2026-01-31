@@ -1,18 +1,189 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 <head>
-    <title>تست سرعت سایت</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مار بازی</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            text-align: center;
+        }
+        .game-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        canvas {
+            border: 3px solid #ffd700;
+            background: #000;
+            border-radius: 8px;
+        }
+        h1 {
+            margin-bottom: 15px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
+            50% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700; }
+            100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
+        }
+        .instructions {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .score {
+            margin-top: 15px;
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+    </style>
 </head>
 <body>
-    <h1>سایت با GitHub Pages تست شد!</h1>
-    <p>سرعت بارگذاری: <span id="speed"></span></p>
+    <div class="game-container">
+        <h1>مار بازی</h1>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="score">امتیاز: <span id="scoreValue">0</span></div>
+        <div class="instructions">
+            <p>کلیدهای جهتی (↑ ↓ ← →) برای حرکت مار</p>
+            <p>هدف: ماهی را بخورید و رشد کنید!</p>
+        </div>
+    </div>
+
     <script>
-        // تست سرعت ساده
-        const startTime = performance.now();
-        setTimeout(() => {
-            const endTime = performance.now();
-            document.getElementById('speed').innerText = (endTime - startTime).toFixed(2) + "ms";
-        }, 100);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 20;
+        const gridWidth = canvas.width / gridSize;
+        const gridHeight = canvas.height / gridSize;
+
+        // ایجاد مار
+        let snake = [
+            { x: 10, y: 10 }
+        ];
+        let direction = 'right';
+        let nextDirection = 'right';
+        let food = generateFood();
+        let score = 0;
+        let gameActive = true;
+        let gameSpeed = 150; // میلی‌ثانیه
+
+        // تولید ماهی تصادفی
+        function generateFood() {
+            return {
+                x: Math.floor(Math.random() * gridWidth),
+                y: Math.floor(Math.random() * gridHeight)
+            };
+        }
+
+        // رسم مار
+        function drawSnake() {
+            snake.forEach((segment, index) => {
+                ctx.fillStyle = index === 0 ? '#00ff00' : '#00cc00';
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+            });
+        }
+
+        // رسم ماهی
+        function drawFood() {
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(
+                food.x * gridSize + gridSize / 2,
+                food.y * gridSize + gridSize / 2,
+                gridSize / 2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+
+        // حرکت مار
+        function moveSnake() {
+            direction = nextDirection;
+            const head = { x: snake[0].x, y: snake[0].y };
+
+            switch (direction) {
+                case 'up': head.y--; break;
+                case 'down': head.y++; break;
+                case 'left': head.x--; break;
+                case 'right': head.x++; break;
+            }
+
+            // بررسی برخورد با دیوار
+            if (head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight) {
+                gameOver();
+                return;
+            }
+
+            // بررسی برخورد با خود مار
+            for (let i = 0; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            // بررسی برخورد با ماهی
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                document.getElementById('scoreValue').textContent = score;
+                food = generateFood();
+            } else {
+                snake.pop();
+            }
+        }
+
+        // پایان بازی
+        function gameOver() {
+            gameActive = false;
+            alert(`بازی تمام شد! امتیاز شما: ${score}`);
+        }
+
+        // رسم بازی
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSnake();
+            drawFood();
+        }
+
+        // حلقه بازی
+        function gameLoop() {
+            if (!gameActive) return;
+            moveSnake();
+            draw();
+            setTimeout(gameLoop, gameSpeed);
+        }
+
+        // کنترل کلیدهای جهتی
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp': if (direction !== 'down') nextDirection = 'up'; break;
+                case 'ArrowDown': if (direction !== 'up') nextDirection = 'down'; break;
+                case 'ArrowLeft': if (direction !== 'right') nextDirection = 'left'; break;
+                case 'ArrowRight': if (direction !== 'left') nextDirection = 'right'; break;
+            }
+        });
+
+        // شروع بازی
+        gameLoop();
     </script>
 </body>
 </html>

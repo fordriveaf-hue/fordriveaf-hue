@@ -1,123 +1,253 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مار بازی</title>
+    <title>ارباب همه ی مار ها آرشام بزرگ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: linear-gradient(to bottom, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8a2be2);
+            background-size: 100% 200%;
+            animation: gradientShift 15s ease infinite;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
-            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            touch-action: none;
+            overflow: hidden;
         }
-        .game-container {
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+        .game-title {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                         0 0 40px rgba(138, 43, 226, 0.7);
+            z-index: 10;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px #8a2be2, 0 0 20px #8a2be2;
+        }
+        .level-selection {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 20;
+            width: 80%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+        }
+        .level-selection h2 {
+            color: #8a2be2;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        .level-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .level-btn {
+            padding: 15px;
+            background: linear-gradient(to bottom, #8a2be2, #6a1bbd);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            text-transform: uppercase;
+        }
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.6);
+        }
+        .level-btn:active {
+            transform: translateY(0);
         }
         canvas {
-            border: 3px solid #ffd700;
-            background: #000;
-            border-radius: 8px;
-        }
-        h1 {
-            margin-bottom: 15px;
-            font-size: 2.5rem;
-            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
-            50% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700; }
-            100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0, 0, 255, 0.5);
+            display: none;
         }
         .instructions {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            color: #ffd700;
-            background: rgba(255, 215, 0, 0.1);
-            padding: 10px;
-            border-radius: 8px;
-            display: inline-block;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            z-index: 10;
         }
-        .score {
-            margin-top: 15px;
-            font-size: 1.5rem;
-            color: #ffd700;
+        .virtual-keyboard {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 100;
+        }
+        .key {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.7);
+            color: #8a2be2;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            user-select: none;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+            transition: all 0.2s;
+        }
+        .key:active {
+            transform: scale(0.9);
+            background: rgba(138, 43, 226, 0.8);
+        }
+        .restart-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 20px;
+            color: #8a2be2;
+            text-align: center;
+            display: none;
+            z-index: 200;
+            border: 2px solid #8a2be2;
+            width: 80%;
+            max-width: 400px;
+        }
+        .restart-button h2 {
+            margin-top: 0;
+            font-size: 28px;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.7);
+        }
+        .restart-button p {
+            font-size: 20px;
+            margin: 15px 0;
+        }
+        .restart-button button {
+            background: #8a2be2;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+            text-transform: uppercase;
+        }
+        .restart-button button:hover {
+            background: #6a1bbd;
+            transform: scale(1.05);
+        }
+        @media (min-width: 768px) {
+            .virtual-keyboard {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>مار بازی</h1>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div class="score">امتیاز: <span id="scoreValue">0</span></div>
-        <div class="instructions">
-            <p>کلیدهای جهتی (↑ ↓ ← →) برای حرکت مار</p>
-            <p>هدف: ماهی را بخورید و رشد کنید!</p>
+    <div class="game-title">ارباب همه ی مار ها آرشام بزرگ</div>
+    <div class="level-selection" id="levelSelection">
+        <h2>سطح بازی را انتخاب کنید:</h2>
+        <div class="level-buttons">
+            <button class="level-btn" data-speed="200">ضعیف</button>
+            <button class="level-btn" data-speed="150">متوسط</button>
+            <button class="level-btn" data-speed="100">قوی</button>
+            <button class="level-btn" data-speed="75">حرفه‌ای</button>
         </div>
     </div>
-
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="instructions">
+        <p>کلیدهای جهت: <span style="color: #ff0000;">↑</span> <span style="color: #ff0000;">↓</span> <span style="color: #ff0000;">←</span> <span style="color: #ff0000;">→</span></p>
+        <p>هدف: مار را به سمت غذا حرکت دهید و طول آن را افزایش دهید</p>
+    </div>
+    <div class="virtual-keyboard">
+        <div class="key" data-direction="up">↑</div>
+        <div class="key" data-direction="left">←</div>
+        <div class="key" data-direction="right">→</div>
+        <div class="key" data-direction="down">↓</div>
+    </div>
+    <div class="restart-button" id="restartButton">
+        <h2>بازی تمام شد!</h2>
+        <p>امتیاز شما: <span id="scoreDisplay">0</span></p>
+        <button id="restartBtn">شروع مجدد</button>
+    </div>
     <script>
+        // تنظیمات بازی
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const gridSize = 20;
-        const gridWidth = canvas.width / gridSize;
-        const gridHeight = canvas.height / gridSize;
-
-        // ایجاد مار
-        let snake = [
-            { x: 10, y: 10 }
-        ];
+        const tileCount = 20;
+        let snake = [{ x: 10, y: 10 }];
+        let food = { x: 5, y: 5 };
         let direction = 'right';
         let nextDirection = 'right';
-        let food = generateFood();
-        let score = 0;
         let gameActive = true;
-        let gameSpeed = 150; // میلی‌ثانیه
+        let score = 0;
+        let gameSpeed = 200; // سرعت پیش‌فرض (ضعیف)
 
-        // تولید ماهی تصادفی
-        function generateFood() {
-            return {
-                x: Math.floor(Math.random() * gridWidth),
-                y: Math.floor(Math.random() * gridHeight)
-            };
-        }
+        // ترسیم بازی (تغییر اصلی: اصلاح خطای ضرب)
+        function draw() {
+            // پس‌زمینه
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // رسم مار
-        function drawSnake() {
+            // مار
+            ctx.fillStyle = '#00ff00';
             snake.forEach((segment, index) => {
-                ctx.fillStyle = index === 0 ? '#00ff00' : '#00cc00';
-                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2); // اصلاح خطای ضرب
+                if (index === 0) {
+                    ctx.fillStyle = '#00cc00'; // سر مار
+                }
             });
-        }
 
-        // رسم ماهی
-        function drawFood() {
+            // غذا
             ctx.fillStyle = '#ff0000';
-            ctx.beginPath();
-            ctx.arc(
-                food.x * gridSize + gridSize / 2,
-                food.y * gridSize + gridSize / 2,
-                gridSize / 2,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+
+            // نمایش امتیاز
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '16px Arial';
+            ctx.fillText(`امتیاز: ${score}`, 10, 20);
         }
 
-        // حرکت مار
-        function moveSnake() {
+        // به‌روزرسانی بازی
+        function update() {
+            if (!gameActive) return;
+
             direction = nextDirection;
             const head = { x: snake[0].x, y: snake[0].y };
 
+            // حرکت مار
             switch (direction) {
                 case 'up': head.y--; break;
                 case 'down': head.y++; break;
@@ -126,7 +256,7 @@
             }
 
             // بررسی برخورد با دیوار
-            if (head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight) {
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
                 gameOver();
                 return;
             }
@@ -139,40 +269,31 @@
                 }
             }
 
+            // اضافه کردن سر جدید
             snake.unshift(head);
 
-            // بررسی برخورد با ماهی
+            // بررسی برخورد با غذا
             if (head.x === food.x && head.y === food.y) {
                 score++;
-                document.getElementById('scoreValue').textContent = score;
-                food = generateFood();
+                document.getElementById('scoreDisplay').textContent = score;
+                // تولید غذا جدید
+                food = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
             } else {
-                snake.pop();
+                snake.pop(); // حذف دم مار
             }
         }
 
         // پایان بازی
         function gameOver() {
             gameActive = false;
-            alert(`بازی تمام شد! امتیاز شما: ${score}`);
+            document.getElementById('restartButton').style.display = 'block';
+            document.getElementById('scoreDisplay').textContent = score;
         }
 
-        // رسم بازی
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSnake();
-            drawFood();
-        }
-
-        // حلقه بازی
-        function gameLoop() {
-            if (!gameActive) return;
-            moveSnake();
-            draw();
-            setTimeout(gameLoop, gameSpeed);
-        }
-
-        // کنترل کلیدهای جهتی
+        // کنترل بازی
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowUp': if (direction !== 'down') nextDirection = 'up'; break;
@@ -182,8 +303,35 @@
             }
         });
 
-        // شروع بازی
-        gameLoop();
+        // کنترل موبایل
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                nextDirection = key.dataset.direction;
+            });
+        });
+
+        // دکمه بازی مجدد (تغییر اصلی: رفرش صفحه)
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            location.reload(); // صفحه رفرش می‌شود
+        });
+
+        // حلقه بازی
+        function gameLoop() {
+            update();
+            draw();
+            setTimeout(gameLoop, gameSpeed);
+        }
+
+        // اتصال دکمه‌های سطح
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                gameSpeed = parseInt(btn.dataset.speed);
+                document.getElementById('levelSelection').style.display = 'none';
+                document.getElementById('gameCanvas').style.display = 'block';
+                gameLoop();
+            });
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>تست سرعت سایت</title>
+</head>
+<body>
+    <h1>سایت با GitHub Pages تست شد!</h1>
+    <p>سرعت بارگذاری: <span id="speed"></span></p>
+    <script>
+        // تست سرعت ساده
+        const startTime = performance.now();
+        setTimeout(() => {
+            const endTime = performance.now();
+            document.getElementById('speed').innerText = (endTime - startTime).toFixed(2) + "ms";
+        }, 100);
+    </script>
+</body>
+</html>
